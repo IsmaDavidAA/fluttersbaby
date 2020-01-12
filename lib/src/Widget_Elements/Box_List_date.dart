@@ -1,21 +1,24 @@
-import 'package:flutter/material.dart';
+//import 'package:flutter/material.dart';
 /*
 class ListBox extends State<Boxes> {
   final _suggestions = <Box>[];
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _buildSuggestions(),
+    return Container(
+      padding: const EdgeInsets.only(right: 30.0,top: 60.0),
+      child:Container(
+        padding: const EdgeInsets.only(right: 0.0,top: 15.0),
+        color: Color.fromARGB(150,95,158,160),
+        child: _buildSuggestions(),
+      )
     );
   }
   Widget _buildSuggestions() {
     return ListView.builder(
-
-        padding: const EdgeInsets.all(10.0),
-        itemBuilder: /*1*/ (context, i) { /*3*/
+        padding: const EdgeInsets.all(16.0),
+        itemBuilder: (context, i) {
           if(i < 14) {
-            print(i);
-            _suggestions.add(Box()); /*4*/
+            _suggestions.add(Box());
             return Box();
           }else return null;
 
@@ -40,10 +43,12 @@ class BoxWitget extends State<Box>{
     date = "lol";
     return RaisedButton(
         onPressed: () {},
-        color: Colors.cyanAccent,
+        color: Color.fromARGB(190, 37, 109, 123),
         child: Text(
-            'Enabled Button $date',
-            style: TextStyle(fontSize: 20)
+            'uwu 7u7 XD $date',
+            style: TextStyle(fontSize: 20,
+                      color: Colors.white
+                    )
         ),
     );
   }
