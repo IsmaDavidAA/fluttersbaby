@@ -3,8 +3,10 @@ import '../bloc.navigation_bloc/navigation_bloc.dart';
 
 class ListBox extends State<Boxes> {
   final _suggestions = <Box>[];
+  final _dateC = false;
   @override
   Widget build(BuildContext context) {
+
     return Container(
         padding: const EdgeInsets.only(right: 40.0,top: 70.0),
         child:Container(
@@ -28,6 +30,7 @@ class ListBox extends State<Boxes> {
         }
     );
   }
+
 }
 class Boxes extends StatefulWidget with NavigationStates{
   @override

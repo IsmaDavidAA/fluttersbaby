@@ -5,6 +5,7 @@ import '../bloc.navigation_bloc/navigation_bloc.dart';
 import 'sidebar.dart';
 
 class SideBarLayout extends StatelessWidget {
+  final DateExis = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,5 +23,9 @@ class SideBarLayout extends StatelessWidget {
         ),
       ),
     );
+  }
+  bool _datEx(){
+
+    return false;
   }
 }

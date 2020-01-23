@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:fluttersbaby/src/models/Employees_model.dart';
 import 'package:fluttersbaby/src/models/Projects_model.dart';
 import 'package:fluttersbaby/src/models/days_model.dart';
+export 'package:fluttersbaby/src/models/Employees_model.dart';
+export 'package:fluttersbaby/src/models/Projects_model.dart';
+export 'package:fluttersbaby/src/models/days_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -25,24 +28,30 @@ class DBProvider{
       onCreate: (Database db, int version) async{
         await db.execute(
           'CREATE TABLE Dates('
-          ' idDates INTEGER PRIMARY KEY,'
+          ' idDates INTEGER PRIMARY KEY AUTOINCREMENT,'
           ' dates DATE,'
-          ' idProjects INTEGER FOREIGN KEY'
+          ' idProjects INTEGER'
           ') '
-          'CREATE TABLE Projects('
-          ' idProyect INTEGER PRIMARY KEY,'
-          ' namesPro TEXT,'
-          ' idEmployees INTEGER FOREIGN KEY'
-          ') '
-          'CREATE TABLE Employees('
-          ' idEmployees INTEGER PRIMARY KEY,'
+        );
+        await db.execute(
+          'CREATE TABLE Employees ('
+          ' idEmployees INTEGER PRIMARY KEY AUTOINCREMENT,'
+          ' sueldosHora INTEGER,'
           ' namesEm TEXT'
-          ')'
+          ') '
+        );
+        await db.execute(
+            'CREATE TABLE Projects ('
+                ' idProjects INTEGER PRIMARY KEY AUTOINCREMENT,'
+                ' namesPro TEXT,'
+                ' idEmployees INTEGER'
+                ') '
         );
       }
     );
   }
   //Crear registros
+
   nuevoDateRaw(Date newDate) async{
     final db = await database;
     final res = await db.rawInsert(
@@ -64,8 +73,8 @@ class DBProvider{
   nuevoEmployeeRaw(Employee newEmployee) async{
     final db = await database;
     final res = await db.rawInsert(
-        "INSERT Into Employees (idEmployees, namesEm) "
-        "VALUES ( ${ newEmployee.idEmployees}, '${ newEmployee.namesEm}'"
+        "INSERT Into Employees (idEmployees, sueldosHora, namesEm) "
+        "VALUES ( ${ newEmployee.idEmployees}, ${ newEmployee.sueldosHora}, '${ newEmployee.namesEm}'"
     );
     return res;
   }
@@ -115,7 +124,22 @@ class DBProvider{
                           : [];
     return list;
   }
-
+  Future<List<Project>> getAllProjects() async{
+    final db = await database;
+    final res = await db.query('Projects');
+    List<Project> list = res.isNotEmpty
+                        ? res.map((c) => Project.fromJson(c)).toList()
+                        : [];
+    return list;
+  }
+  Future<List<Employee>> getAllEmployees() async{
+    final db = await database;
+    final res = await db.query('Employees');
+    List<Employee> list = res.isNotEmpty
+                          ? res.map((c) => Employee.fromJson(c)).toList()
+                          : [];
+    return list;
+  }
   //actualizar registros
 
   Future<int> updateDate(Date newDate)async{

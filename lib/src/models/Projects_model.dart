@@ -16,8 +16,11 @@ class Project {
   );
 
   Map<String, dynamic> toJson() => {
-    "idProyects": idProjects,
-    "names": namesPro,
+    "idProjects": idProjects,
+    "namesPro": namesPro,
     "idEmployees": idEmployees,
   };
+  String getName(){
+    return namesPro;
+  }
 }
