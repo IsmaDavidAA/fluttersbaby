@@ -19,4 +19,30 @@ class Date {
     "dates": dates,
     "idProjects": idProjects,
   };
+  int getDay(){
+    List<String> res = dates.split("-");
+    return int.parse(res[0]);
+  }
+  int getMonth(){
+    List<String> res = dates.split("-");
+    return int.parse(res[1]);
+  }
+  int getYear(){
+    List<String> res = dates.split("-");
+    return int.parse(res[2]);
+  }
+}
+
+class Est{
+  int estado;
+  Est({
+    this.estado,
+  });
+  factory Est.fromJson(Map<String, dynamic> json) => Est(
+    estado: json["estado"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "estado": estado,
+  };
 }

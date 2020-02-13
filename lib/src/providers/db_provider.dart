@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:fluttersbaby/src/models/Employees_model.dart';
 import 'package:fluttersbaby/src/models/Projects_model.dart';
 import 'package:fluttersbaby/src/models/days_model.dart';
+import 'package:fluttersbaby/src/models/worked_models.dart';
 export 'package:fluttersbaby/src/models/Employees_model.dart';
 export 'package:fluttersbaby/src/models/Projects_model.dart';
 export 'package:fluttersbaby/src/models/days_model.dart';
@@ -28,7 +29,7 @@ class DBProvider{
       onCreate: (Database db, int version) async{
         await db.execute(
           'CREATE TABLE Dates('
-          ' idDates INTEGER PRIMARY KEY AUTOINCREMENT,'
+          ' idDates INTEGER PRIMARY KEY,'
           ' dates DATE,'
           ' idProjects INTEGER'
           ') '
@@ -45,6 +46,19 @@ class DBProvider{
                 ' idProjects INTEGER PRIMARY KEY AUTOINCREMENT,'
                 ' namesPro TEXT,'
                 ' idEmployees INTEGER'
+                ') '
+        );
+        await db.execute(
+            'CREATE TABLE Works ('
+                ' idDates INTEGER,'
+                ' idProjects INTEGER,'
+                ' idEmployees INTEGER,'
+                ' hoursWorkEmployees INTEGER'
+                ') '
+        );
+        await db.execute(
+            'CREATE TABLE Ests ('
+                ' estado INTEGER'
                 ') '
         );
       }
@@ -94,7 +108,18 @@ class DBProvider{
     final res = await db.insert('Employees', newEmployee.toJson() );
     return res;
   }
+  nuevoWork( WorksModels newWork) async{
+    final db = await database;
+    final res = await db.insert('Works', newWork.toJson() );
+    print("${newWork.idDates}   ${newWork.idProjects}  nuevo");
+    return res;
+  }
 
+  nuevoEst( Est newEst) async{
+    final db = await database;
+    final res = await db.insert('Ests', newEst.toJson() );
+    return res;
+  }
   //SELECT - Obtener informacion
   Future<Date> getDateIdDates( int idDate ) async{
     final db = await database;
@@ -115,6 +140,19 @@ class DBProvider{
   }
 
   //SELECT- ALL
+
+  Future<Est> getEst() async{
+    final db = await database;
+    final res = await db.query('Ests');
+    return res.isNotEmpty ? Est.fromJson(res.first) : null;
+  }
+
+  Future<int> deleteAllEst() async{
+    final db = await database;
+    final res = await db.rawDelete('DELETE FROM Ests');
+    return res;
+  }
+
 
   Future<List<Date>> getAllDates() async{
     final db = await database;
@@ -159,7 +197,11 @@ class DBProvider{
     final res = await db.update('Employees', newEmployee.toJson(), where:'idEmployees = ?', whereArgs: [newEmployee.idEmployees] );
     return res;
   }
-
+  Future<int> updateEst(Est newEst)async{
+    final db = await database;
+    final res = await db.update('Ests', newEst.toJson(), where:'est = ?', whereArgs: [newEst.estado] );
+    return res;
+  }
   //Eliminar registros
 
   Future<int> deleteDate(int idDate) async{
@@ -167,10 +209,49 @@ class DBProvider{
     final res = await db.delete('Dates', where: 'idDates = ?', whereArgs: [idDate]);
     return res;
   }
+  Future<int> deleteEmployee(int idEmployee) async{
+    final db = await database;
+    final res = await db.delete('Employees', where: 'idEmployees = ?', whereArgs: [idEmployee]);
+    return res;
+  }
+
+  Future<int> deleteProject(int idProject) async{
+    final db = await database;
+    final res = await db.delete('Projects', where: 'idProjects = ?', whereArgs: [idProject]);
+    return res;
+  }
+  Future<int> deleteWork(int idDate, int idProject) async{
+    final db = await database;
+    print("$idDate   $idProject delete");
+    final res = await db.rawDelete("DELETE FROM Works WHERE idDates = $idDate AND idProjects = $idProject");
+    return res;
+  }
 
   Future<int> deleteAllDate() async{
     final db = await database;
     final res = await db.rawDelete('DELETE FROM Dates');
     return res;
+  }
+  Future<int> deleteAllWork() async{
+    final db = await database;
+    final res = await db.rawDelete('DELETE FROM Works');
+    return res;
+  }
+
+  Future<List<WorksModels>> getAllWorksDate(int idDate) async{
+    final db = await database;
+    final res = await db.query('Works',where: "idDates = ?", whereArgs: [idDate]);
+    List<WorksModels> list = res.isNotEmpty
+        ? res.map((c) => WorksModels.fromJson(c)).toList()
+        : [];
+    print(list.length);
+    return list;
+  }
+  Future<WorksModels> exDateProj( int idDate, int idProject ) async{
+    final db = await database;
+    final res = await db.rawQuery("SELECT idProjects FROM Works WHERE idDates = $idDate AND idProjects = $idProject");
+    final r = res.isNotEmpty ? 1 : 0;
+    print("$idDate   $idProject su existencia $r");
+    return res.isNotEmpty ? WorksModels.fromJson(res.first) : null;
   }
 }

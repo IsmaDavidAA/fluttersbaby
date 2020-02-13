@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:fluttersbaby/src/pages/Choose_Projects.dart';
 import 'package:fluttersbaby/src/pages/List_Employees_page.dart';
 import 'package:fluttersbaby/src/pages/List_Proyects_page.dart';
 import 'package:fluttersbaby/src/pages/home_page.dart';
@@ -14,13 +15,13 @@ abstract class NavigationStates {}
 
 class NavigationBloc extends Bloc<NavigationEvents, NavigationStates> {
   @override
-  NavigationStates get initialState => Boxes();
+  NavigationStates get initialState => Boxx();
 
   @override
   Stream<NavigationStates> mapEventToState(NavigationEvents event) async* {
     switch (event) {
       case NavigationEvents.HomePageClickedEvent:
-        yield Boxes();
+        yield Boxx();
         break;
       case NavigationEvents.MyAccountClickedEvent:
         yield Employees();

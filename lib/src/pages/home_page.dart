@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttersbaby/src/models/days_model.dart';
+import 'package:fluttersbaby/src/pages/Choose_Project.dart';
+import 'package:fluttersbaby/src/pages/Choose_Projects.dart';
+import 'package:fluttersbaby/src/pages/List_Proyects_page.dart';
+import 'package:fluttersbaby/src/providers/db_provider.dart';
 import '../bloc.navigation_bloc/navigation_bloc.dart';
 
 class ListBox extends State<Boxes> {
   final _suggestions = <Box>[];
-  final _dateC = false;
   @override
   Widget build(BuildContext context) {
 
@@ -24,40 +29,201 @@ class ListBox extends State<Boxes> {
             height: 100,
           );
           if(i < 14) {
-            _suggestions.add(Box());
-            return Box();
+            _suggestions.add(Box(i));
+            return Box(i);
           }else return null;
         }
     );
   }
-
 }
-class Boxes extends StatefulWidget with NavigationStates{
+class Boxes extends StatefulWidget{
   @override
   ListBox createState() => ListBox();
 }
 
 class Box extends StatefulWidget{
+  int date;
+  Box(int date){
+    this.date = date;
+  }
   @override
   BoxWitget createState() {
-    return BoxWitget();
+    return BoxWitget(date);
   }
 }
-class BoxWitget extends State<Box>{
-  String date;
+class Boxx extends StatelessWidget with NavigationStates{
   @override
   Widget build(BuildContext context) {
-    date = "lol";
-    return RaisedButton(
-      onPressed: () {},
-      color: Color.fromARGB(190, 37, 109, 123),
-      child: Text(
-          ' $date veamos si agrego mas textooooo',
-          style: TextStyle(fontSize: 18,
-              color: Colors.white
-          ),
-      ),
+    return FutureBuilder<Est>(
+        future: DBProvider.db.getEst(),
+        builder: (BuildContext context, AsyncSnapshot<Est> snappshot) {
+          if (!snappshot.hasData)  return Welc();
+          final est = snappshot.data;
+          if(est.estado == 0) return Center(child: Text("elija una fecha"),);
+          return Boxes();
+        }
     );
   }
 }
+
+class Welc extends StatefulWidget {
+  @override
+  _WelcState createState() => _WelcState();
+}
+
+class _WelcState extends State<Welc> {
+  var _dateTime;
+  var cont=0;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(_dateTime == null ? 'Aun no tiene fecha de inicio' : _dateTime.toString()),
+            RaisedButton(
+              child: Text('Escoger fecha de inicio'),
+              onPressed: () {
+                showDatePicker(
+                    context: context,
+                    initialDate: _dateTime == null ? DateTime.now() : _dateTime,
+                    firstDate: DateTime(2018),
+                    lastDate: DateTime(2021),
+                ).then((date) {
+                  setState(() {
+                    _dateTime = "${date.day}-${date.month}-${date.year}-${date.weekday}";
+                    if(_dateTime != null && cont == 0){
+                      cont = 1;
+                      final dat = Est(estado: 1);
+                      DBProvider.db.nuevoEst(dat);
+                      llenarDays();
+                    }
+                  });
+                });
+              },
+            )
+          ],
+        ),
+      ),
+    );
+  }
+  llenarDays(){
+    List<String> res = _dateTime.split("-");
+    int d = int.parse(res[0]);
+    int m = int.parse(res[1]);
+    int y = int.parse(res[2]);
+    int dw = int.parse(res[3]);
+    for(var i=0;i<14;i++){
+      var newDate;
+      if(m <8) {
+        if (m % 2 == 0) {
+          if (m == 2) {
+            if (d < 29) {
+              d++;
+            } else {
+              d = 1;
+              m++;
+            }
+          } else {
+            if (d < 30) {
+              d++;
+            } else {
+              d = 1;
+              m++;
+            }
+          }
+        } else {
+          if (d < 31) {
+            d++;
+          } else {
+            d = 1;
+            m++;
+          }
+        }
+      }else{
+        if (m % 2 == 0) {
+          if (m == 12) {
+            if (d < 31) {
+              d++;
+            } else {
+              d = 1;
+              m++;
+              y++;
+            }
+          } else {
+            if (d < 31) {
+              d++;
+            } else {
+              d = 1;
+              m++;
+            }
+          }
+        } else {
+          if (d < 30) {
+            d++;
+          } else {
+            d = 1;
+            m++;
+          }
+        }
+      }
+      var r = generDay(dw);
+      newDate = Date(idDates: i,dates: "$r-$d-$m-$y");
+      DBProvider.db.nuevoDate(newDate);
+      if(dw < 7){
+        dw++;
+      }else{
+        dw=1;
+      }
+    }
+  }
+  String generDay(int wk){
+    if(wk ==1 )  return "Lunes";
+    if(wk ==2 )  return "Martes";
+    if(wk ==3 )  return "Miercoles";
+    if(wk ==4 )  return "Jueves";
+    if(wk ==5 )  return "Viernes";
+    if(wk ==6 )  return "Sabado";
+    else return "Domingo";
+  }
+}
+class BoxWitget extends State<Box>{
+  int date;
+  BoxWitget(int date){
+    this.date = date;
+  }
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Date>(
+        future: DBProvider.db.getDateIdDates(date),
+        builder: (BuildContext context, AsyncSnapshot<Date> snappshot) {
+          if (!snappshot.hasData)  return Center(child: CircularProgressIndicator(),);
+          final dat = snappshot.data;
+          return RaisedButton(
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => MyCProj(dat),
+              ));
+            },
+            color: Color.fromARGB(190, 37, 109, 123),
+            child: Column(
+              children: <Widget>[
+                Text("${dat.dates}",
+                    style: TextStyle(fontSize: 18,
+                      color: Colors.white,)
+                ),
+                Text("proy",
+                    style: TextStyle(fontSize: 11,
+                      color: Colors.white,)
+                ),
+              ],
+            ),
+          );
+        }
+    );
+  }
+}
+
+
 

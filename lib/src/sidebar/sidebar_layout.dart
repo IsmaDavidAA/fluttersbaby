@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttersbaby/src/models/Employees_model.dart';
+import 'package:fluttersbaby/src/providers/db_provider.dart';
 
 import '../bloc.navigation_bloc/navigation_bloc.dart';
 import 'sidebar.dart';
 
 class SideBarLayout extends StatelessWidget {
-  final DateExis = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,8 +25,5 @@ class SideBarLayout extends StatelessWidget {
       ),
     );
   }
-  bool _datEx(){
 
-    return false;
-  }
 }

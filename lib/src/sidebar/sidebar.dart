@@ -139,7 +139,6 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin<S
       firstDate: new DateTime(2019),
       lastDate: new DateTime(2023),
     );
-
   }
 }
 
