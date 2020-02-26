@@ -9,16 +9,30 @@ import '../bloc.navigation_bloc/navigation_bloc.dart';
 
 class ListBox extends State<Boxes> {
   final _suggestions = <Box>[];
+  Date today;
+  ListBox(){
+    today = new Date(dates: "${generDay(DateTime.now().day)}-${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}");  
+  }
   @override
   Widget build(BuildContext context) {
 
-    return Container(
+    return Scaffold(
+      body: Container(
         padding: const EdgeInsets.only(right: 40.0,top: 70.0),
         child:Container(
           padding: const EdgeInsets.only(right: 0.0,top: 15.0),
           color: Color.fromARGB(150,95,158,160),
           child: _buildSuggestions(),
-        )
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          // Add your onPressed code here!
+        },
+        label: Text(''),
+        icon: Icon(Icons.settings_backup_restore),
+        backgroundColor: Colors.black,
+      ),
     );
   }
   Widget _buildSuggestions() {
@@ -29,11 +43,20 @@ class ListBox extends State<Boxes> {
             height: 100,
           );
           if(i < 14) {
-            _suggestions.add(Box(i));
-            return Box(i);
+            _suggestions.add(Box(i,today));
+            return Box(i,today);
           }else return null;
         }
     );
+  }
+  String generDay(int wk){
+    if(wk ==1 )  return "Lunes";
+    if(wk ==2 )  return "Martes";
+    if(wk ==3 )  return "Miercoles";
+    if(wk ==4 )  return "Jueves";
+    if(wk ==5 )  return "Viernes";
+    if(wk ==6 )  return "Sabado";
+    else return "Domingo";
   }
 }
 class Boxes extends StatefulWidget{
@@ -43,12 +66,14 @@ class Boxes extends StatefulWidget{
 
 class Box extends StatefulWidget{
   int date;
-  Box(int date){
+  Date today;
+  Box(int date, Date today){
     this.date = date;
+    this.today = today;
   }
   @override
   BoxWitget createState() {
-    return BoxWitget(date);
+    return BoxWitget(date,today);
   }
 }
 class Boxx extends StatelessWidget with NavigationStates{
@@ -110,7 +135,7 @@ class _WelcState extends State<Welc> {
   }
   llenarDays(){
     List<String> res = _dateTime.split("-");
-    int d = int.parse(res[0]);
+    int d = int.parse(res[0]) - 1;
     int m = int.parse(res[1]);
     int y = int.parse(res[2]);
     int dw = int.parse(res[3]);
@@ -190,8 +215,10 @@ class _WelcState extends State<Welc> {
 }
 class BoxWitget extends State<Box>{
   int date;
-  BoxWitget(int date){
+  Date today;
+  BoxWitget(int date, Date today){
     this.date = date;
+    this.today = today;
   }
   @override
   Widget build(BuildContext context) {
@@ -201,22 +228,20 @@ class BoxWitget extends State<Box>{
           if (!snappshot.hasData)  return Center(child: CircularProgressIndicator(),);
           final dat = snappshot.data;
           return RaisedButton(
-            onPressed: () {
+            onPressed: () async{
+              var workProject = await DBProvider.db.getAllWorksDate(dat.idDates);
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => MyCProj(dat),
+                builder: (context) => MyCProj(dat.idDates, workProject),
               ));
             },
-            color: Color.fromARGB(190, 37, 109, 123),
+            color: (!(today.dates == dat.dates))? Color.fromARGB(190, 37, 109, 123): Color.fromARGB(10, 37, 109, 13),
             child: Column(
               children: <Widget>[
                 Text("${dat.dates}",
                     style: TextStyle(fontSize: 18,
                       color: Colors.white,)
                 ),
-                Text("proy",
-                    style: TextStyle(fontSize: 11,
-                      color: Colors.white,)
-                ),
+                
               ],
             ),
           );

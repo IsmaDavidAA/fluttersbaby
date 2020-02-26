@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:fluttersbaby/src/models/worked_models.dart';
-import 'package:fluttersbaby/src/pages/Choose_Projects.dart';
+import 'package:fluttersbaby/src/pages/Choose_Employees.dart';
 import 'package:fluttersbaby/src/pages/home_page.dart';
 import 'package:fluttersbaby/src/providers/db_provider.dart';
 import '../bloc.navigation_bloc/navigation_bloc.dart';
@@ -9,25 +9,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:fluttersbaby/src/bloc.navigation_bloc/navigation_bloc.dart';
 
 class MyCProj extends StatelessWidget with NavigationStates{
-  Date date;
+  var date;
   var _workss;
-  var wow;
-  MyCProj(Date date){
+  MyCProj(var date, var wow){
     this.date = date;
-    wow = FutureBuilder<List<WorksModels>>(
-        future: DBProvider.db.getAllWorksDate(date.idDates),
-        builder: (BuildContext context, AsyncSnapshot<List<WorksModels>> snappshot){
-          print("loooooooooool");
-          if(!snappshot.hasData)  return null;
-          _workss = snappshot.data;
-          return null;
-        }
-    );
-//    DBProvider.db.deleteAllWork();
+    this._workss = wow;
   }
   @override
   Widget build(BuildContext context){
+    
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: Colors.cyan,
       ),
@@ -42,7 +34,7 @@ class MyCProj extends StatelessWidget with NavigationStates{
             }),
           ],
         ),
-        body: CelBox(date,_workss),
+        body: CelBox(date, _workss),
         backgroundColor: Colors.white,
       ),
     );
@@ -50,15 +42,12 @@ class MyCProj extends StatelessWidget with NavigationStates{
 }
 
 class CelBoxWidget extends State<CelBox> {
-  Date date;
+  var date;
   var _workss = List<WorksModels>();
   final forrkey = GlobalKey<FormState>();
-  CelBoxWidget(Date date, var futureBuildr){
+  CelBoxWidget(var date, var wow){
     this.date = date;
-
-    if(futureBuildr == null) print("gg ");
-    else print("we wont");
-    print("${_workss.length} deberia ser");
+    this._workss = wow;
   }
   @override
   Widget build(BuildContext context) {
@@ -86,17 +75,19 @@ class CelBoxWidget extends State<CelBox> {
                 setState(() {
                   final a = isThereWork(projects[i].idProjects);
                   if (a==false) {
-                    final work = WorksModels(idDates: this.date.idDates, idProjects: projects[i].idProjects);
-                    _workss.add(WorksModels(idDates: date.idDates, idProjects: projects[i].idProjects));
+                    final work = WorksModels(idDates: this.date, idProjects: projects[i].idProjects);
+                    _workss.add(WorksModels(idDates: date, idProjects: projects[i].idProjects));
                     DBProvider.db.nuevoWork(work);
                   } else {
-                    deleteWork(projects[i].idProjects);
-                    DBProvider.db.deleteWork(date.idDates, projects[i].idProjects);
+                    _quitarProyecto(context, projects[i].idProjects);
                   }
                 });
               },
-              onLongPress: (){
-
+              onLongPress: () async{
+                var selectedEmp = await DBProvider.db.getAllWorksDateProj(date,projects[i].idProjects);
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => MyCEmp(date, projects[i].idProjects,selectedEmp),
+                ));
               },
             ),
           );
@@ -106,7 +97,7 @@ class CelBoxWidget extends State<CelBox> {
   bool isThereWork(int idProj){
     bool res = false;
     for(int i = 0; i < _workss.length; i++){
-      if(_workss[i].isEqP(date.idDates, idProj)){
+      if(_workss[i].isEqP(date, idProj)){
         res = true;
       }
     }
@@ -116,18 +107,72 @@ class CelBoxWidget extends State<CelBox> {
     bool res = false;
     int i = 0;
     while(i < _workss.length && res == false){
-      if(_workss[i].isEqP(date.idDates, idProj)==true){
+      if(_workss[i].isEqP(date, idProj)==true){
         _workss.removeAt(i);
         res = true;
       }
       i++;
     }
   }
+  void _quitarProyecto(BuildContext context, int id){
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (context){
+          return AlertDialog(
+            title: Text("Seguro que quiere quitar el proyecto?"),
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            content: Form(
+              key: UniqueKey(),
+              child:Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: FlatButton(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      child: Text("No"),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        setState(() {
+                          this.context;
+                        });
+                      },
+                      color: Colors.cyan,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: FlatButton(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      child: Text("Si"),
+                      onPressed: () {
+                        deleteWork(id);
+                        DBProvider.db.deleteWorks(date, id);
+                        Navigator.of(context).pop();
+                        setState(() {
+                          this.context;
+                        });
+                      },
+                      color: Colors.cyan,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+    );
+  }
+    
 }
 class CelBox extends StatefulWidget {
-  Date date;
+  var date;
   var _wokss;
-  CelBox(Date date,var w){
+  CelBox(var date,var w){
     this.date = date;
     this._wokss = w;
   }

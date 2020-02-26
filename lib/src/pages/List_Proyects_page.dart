@@ -7,7 +7,7 @@ class Projects extends StatelessWidget with NavigationStates {
 
   @override
   Widget build(BuildContext context) {
-    DBProvider.db.deleteAllWork();
+    //DBProvider.db.deleteAllWork();
     return ListVip();
   }
 

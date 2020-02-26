@@ -8,7 +8,8 @@ class Employees extends StatelessWidget with NavigationStates {
 
   @override
   Widget build(BuildContext context) {
-//    DBProvider.db.deleteAllEst();
+    //DBProvider.db.deleteAllEst();
+    //DBProvider.db.deleteAllDate();
     return ListVie();
   }
 
@@ -246,7 +247,6 @@ class ListEmp extends State<ListEmpl>{
                     ),
                   ),
                   Align(
-//                alignment: Alignment(1,0),
                     child: FlatButton(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
                       child: Text("Ok"),

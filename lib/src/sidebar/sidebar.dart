@@ -95,9 +95,12 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin<S
                         },
                       ),
                       MenuItem(
-                        icon: Icons.calendar_today,
-                        title: "Calendario",
-                        onTap: () => _selectDate(context),
+                        icon: Icons.attach_money,
+                        title: "Total acumulado",
+                        onTap: () {
+                           onIconPressed();
+                           BlocProvider.of<NavigationBloc>(context).add(NavigationEvents.MyTotalEmpClickedEvent);
+                        },
                       ),
                     ],
                   ),
@@ -130,14 +133,6 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin<S
           ),
         );
       },
-    );
-  }
-  void _selectDate(BuildContext context) async{
-    DateTime picked = await showDatePicker(
-      context: context,
-      initialDate: new DateTime.now(),
-      firstDate: new DateTime(2019),
-      lastDate: new DateTime(2023),
     );
   }
 }

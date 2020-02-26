@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:fluttersbaby/src/pages/Choose_Projects.dart';
 import 'package:fluttersbaby/src/pages/List_Employees_page.dart';
 import 'package:fluttersbaby/src/pages/List_Proyects_page.dart';
+import 'package:fluttersbaby/src/pages/Total_Acumulado.dart';
 import 'package:fluttersbaby/src/pages/home_page.dart';
 
 
@@ -9,6 +10,7 @@ enum NavigationEvents {
   HomePageClickedEvent,
   MyAccountClickedEvent,
   MyOrdersClickedEvent,
+  MyTotalEmpClickedEvent,
 }
 
 abstract class NavigationStates {}
@@ -29,6 +31,9 @@ class NavigationBloc extends Bloc<NavigationEvents, NavigationStates> {
       case NavigationEvents.MyOrdersClickedEvent:
         yield Projects();
         break;
+      case NavigationEvents.MyTotalEmpClickedEvent:
+        yield TotalAcumulado();
+        break;  
     }
   }
 }

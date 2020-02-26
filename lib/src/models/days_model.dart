@@ -19,17 +19,21 @@ class Date {
     "dates": dates,
     "idProjects": idProjects,
   };
-  int getDay(){
+  String getDayW(){
     List<String> res = dates.split("-");
-    return int.parse(res[0]);
+    return res[0];
   }
-  int getMonth(){
+  int getDay(){
     List<String> res = dates.split("-");
     return int.parse(res[1]);
   }
-  int getYear(){
+  int getMonth(){
     List<String> res = dates.split("-");
     return int.parse(res[2]);
+  }
+  int getYear(){
+    List<String> res = dates.split("-");
+    return int.parse(res[3]);
   }
 }
 

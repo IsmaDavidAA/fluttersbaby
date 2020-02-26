@@ -1,3 +1,4 @@
+
 import 'dart:io';
 import 'package:fluttersbaby/src/models/Employees_model.dart';
 import 'package:fluttersbaby/src/models/Projects_model.dart';
@@ -66,7 +67,7 @@ class DBProvider{
   }
   //Crear registros
 
-  nuevoDateRaw(Date newDate) async{
+  nuevoDateRaw( newDate) async{
     final db = await database;
     final res = await db.rawInsert(
       "INSERT Into Dates (idDates, dates, idProjects) "
@@ -93,7 +94,7 @@ class DBProvider{
     return res;
   }
 
-  nuevoDate( Date newDate) async{
+  nuevoDate( var newDate) async{
     final db = await database;
     final res = await db.insert('Dates', newDate.toJson() );
     return res;
@@ -202,6 +203,13 @@ class DBProvider{
     final res = await db.update('Ests', newEst.toJson(), where:'est = ?', whereArgs: [newEst.estado] );
     return res;
   }
+  Future<int> updateWorkProj(WorksModels newWork)async{
+    final db = await database;
+
+    final res = await db.update('Works', newWork.toJson(), where:'idDates = ? AND idProjects = ? ', whereArgs: [newWork.idDates,newWork.idProjects] );
+    print(" ${newWork.idDates} ${newWork.idProjects}  $res aniadido");
+    return res;
+  }
   //Eliminar registros
 
   Future<int> deleteDate(int idDate) async{
@@ -220,10 +228,18 @@ class DBProvider{
     final res = await db.delete('Projects', where: 'idProjects = ?', whereArgs: [idProject]);
     return res;
   }
-  Future<int> deleteWork(int idDate, int idProject) async{
+  Future<int> deleteWorks(int idDate, int idProject) async{
     final db = await database;
-    print("$idDate   $idProject delete");
+    
     final res = await db.rawDelete("DELETE FROM Works WHERE idDates = $idDate AND idProjects = $idProject");
+    print("$idDate   $idProject delete $res elements");
+    return res;
+  }
+
+  Future<int> deleteWorkProj(int idDate, int idProject, int idEmployee) async{
+    final db = await database;
+    final res = await db.rawDelete("DELETE FROM Works WHERE idDates = $idDate AND idProjects = $idProject AND idEmployees = $idEmployee");
+    print("$idDate   $idProject $idEmployee delete $res elements");
     return res;
   }
 
@@ -247,6 +263,29 @@ class DBProvider{
     print(list.length);
     return list;
   }
+
+  Future<List<WorksModels>> getAllWorksDateProj(int idDate, int idProj) async{
+    final db = await database;
+    final res = await db.query('Works',where: "idDates = ? AND idProjects = ?", whereArgs: [idDate,idProj]);
+    List<WorksModels> list = res.isNotEmpty
+        ? res.map((c) => WorksModels.fromJson(c)).toList()
+        : [];
+    return list;
+  }
+
+  Future<int> getSueldoTotalEmp(int idEmp) async{
+    final db = await database;
+    final em = await db.query('Works',where: "idEmployees = ?", whereArgs: [idEmp]);
+    int res = 0;
+    List<WorksModels> list = em.isNotEmpty
+        ? em.map((c) => WorksModels.fromJson(c)).toList()
+        : [];
+    for(int i = 0; i< list.length;i++){
+      res = res + list[i].hoursWorkEmployees;
+    }   
+    return res;
+  }
+
   Future<WorksModels> exDateProj( int idDate, int idProject ) async{
     final db = await database;
     final res = await db.rawQuery("SELECT idProjects FROM Works WHERE idDates = $idDate AND idProjects = $idProject");
@@ -254,4 +293,14 @@ class DBProvider{
     print("$idDate   $idProject su existencia $r");
     return res.isNotEmpty ? WorksModels.fromJson(res.first) : null;
   }
+
+  Future<List<Employee>> totalaPagarPorEmpleado() async{
+    final db = await database;
+    List<Employee> res = await DBProvider.db.getAllEmployees();
+    for(int i=0;i<res.length;i++){
+      res[i].sueldosHora = res[i].sueldosHora * await getSueldoTotalEmp(res[i].idEmployees);
+    }
+    return res;
+  }
 }
+
